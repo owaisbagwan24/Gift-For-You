@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Time</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Segoe UI', sans-serif;
+      overflow: hidden;
+    }
+
+    #bg-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      background: linear-gradient(45deg, #ff1a8c, #ff66cc, #00bfff);
+    }
+
+    .overlay {
+      position: relative;
+      text-align: center;
+      padding: 50px;
+      color: white;
+      background: rgba(255, 0, 166, 0.4);
+      height: 100%;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-30px); }
+    }
+
+    @keyframes slideOutLeft {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(-100%); opacity: 0; }
+    }
+
+    h1 {
+      font-size: 3em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px #fff;
+      animation: slideInFromTop 1s ease-out 0.5s both;
+    }
+
+    @keyframes slideInFromTop {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .quote {
+      font-size: 1.2em;
+      margin-bottom: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      animation: slideInFromBottom 1s ease-out 0.7s both;
+    }
+
+    @keyframes slideInFromBottom {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .time-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 1.2em;
+      margin-bottom: 40px;
+      animation: scaleIn 1s ease-out 0.9s both;
+      flex-wrap: wrap;
+    }
+
+    .time-unit {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 20px 15px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      min-width: 80px;
+      text-align: center;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .time-unit:hover {
+      transform: scale(1.05);
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 25px rgba(255, 102, 204, 0.3);
+    }
+
+    .time-unit span {
+      display: block;
+      font-size: 2em;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+      animation: numberGlow 2s ease-in-out infinite alternate;
+    }
+
+    .time-unit label {
+      display: block;
+      font-size: 0.8em;
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 5px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    @keyframes numberGlow {
+      0% { text-shadow: 0 0 10px rgba(255, 255, 255, 0.5); }
+      100% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(255, 102, 204, 0.5); }
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff66cc, #ff1a8c);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      font-size: 1em;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 102, 204, 0.3);
+      animation: bounceIn 1s ease-out 1.1s both;
+    }
+
+    @keyframes bounceIn {
+      0% { transform: scale(0.3); opacity: 0; }
+      50% { transform: scale(1.05); }
+      70% { transform: scale(0.9); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #ff1a8c, #ff0080);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 102, 204, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Page transition styles */
+    .page-transition {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #ff1a8c, #ff66cc, #00bfff);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .page-transition.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .transition-content {
+      text-align: center;
+      color: white;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .overlay.fade-out {
+      animation: fadeOut 0.5s ease-in-out forwards;
+    }
+
+    /* Second page styles */
+    .page2-container {
+      display: none;
+      padding: 40px 20px;
+      background: #f0f8ff;
+      min-height: 100vh;
+      animation: slideInFromRight 1s ease-out;
+    }
+
+    @keyframes slideInFromRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .page2-container.active {
+      display: block;
+    }
+
+    .title {
+      font-size: 2.5em;
+      color: #00bfff;
+      text-shadow: 0 0 10px #00bfff;
+      text-align: center;
+      animation: fadeInUp 1s ease-out 0.3s both;
+    }
+
+    @keyframes fadeInUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .subtitle {
+      font-size: 1.2em;
+      color: #555;
+      margin-bottom: 30px;
+      text-align: center;
+      animation: fadeInUp 1s ease-out 0.5s both;
+    }
+
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .photo {
+      width: 180px;
+      height: 250px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      opacity: 0;
+      animation: photoFadeIn 0.6s ease-out forwards;
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .photo:nth-child(1) { animation-delay: 0.7s; }
+    .photo:nth-child(2) { animation-delay: 0.8s; }
+    .photo:nth-child(3) { animation-delay: 0.9s; }
+    .photo:nth-child(4) { animation-delay: 1.0s; }
+    .photo:nth-child(5) { animation-delay: 1.1s; }
+    .photo:nth-child(6) { animation-delay: 1.2s; }
+    .photo:nth-child(7) { animation-delay: 1.3s; }
+    .photo:nth-child(8) { animation-delay: 1.4s; }
+    .photo:nth-child(9) { animation-delay: 1.5s; }
+    .photo:nth-child(10) { animation-delay: 1.6s; }
+    .photo:nth-child(11) { animation-delay: 1.7s; }
+    .photo:nth-child(12) { animation-delay: 1.8s; }
+
+    @keyframes photoFadeIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.8); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .photo:hover {
+      transform: scale(1.08);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .photo:hover img {
+      transform: scale(1.1);
+    }
+
+    .photo.clicked {
+      animation: photoClick 0.6s ease;
+    }
+
+    @keyframes photoClick {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.15) rotate(5deg); }
+      100% { transform: scale(1); }
+    }
+
+    .paragraph {
+      margin-top: 40px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      animation: fadeInUp 1s ease-out 2s both;
+    }
+
+    .paragraph h2 {
+      color: #00bfff;
+    }
+
+    .love {
+      font-weight: bold;
+      color: #ff69b4;
+      margin-top: 10px;
+      animation: heartbeat 2s ease-in-out infinite;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    /* Heart floating animation */
+    .heart {
+      position: fixed;
+      font-size: 20px;
+      color: #ff69b4;
+      pointer-events: none;
+      z-index: 100;
+      animation: floatHeart 3s ease-in-out infinite;
+    }
+
+    @keyframes floatHeart {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-200px) rotate(360deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg-video"></div>
+
+  <div class="overlay" id="page1">
+    <h1>Our Memory</h1>   
+    <p class="quote">Our memory together is like a beautifully written story, full of laughter, deep conversations, small adventures, and quiet moments that meant everything. From the very beginning, every smile you gave me and every time you held my hand created a warmth I still carry with me. I remember the late-night talks where we spoke about our dreams, our fears, and everything in between, and how your voice always made even the worst days better. We've shared sunsets and long walks, spontaneous plans and silly fights that always ended in laughter. Every moment we spent together felt like time stood still, just for us. You weren't just my girlfriend—you were my best friend, my safe place, and the reason behind so many happy memories that I'll never forget. No matter where life takes us, the memories we've made will always be a part of me, a reminder of a love that was real, beautiful, and unforgettable.</p>
+
+    <div class="time-container">
+      <div class="time-unit">
+        <span id="months">0</span>
+        <label>Months</label>
+      </div>
+      <div class="time-unit">
+        <span id="days">0</span>
+        <label>Days</label>
+      </div>
+      <div class="time-unit">
+        <span id="hours">0</span>
+        <label>Hours</label>
+      </div>
+      <div class="time-unit">
+        <span id="minutes">0</span>
+        <label>Minutes</label>
+      </div>
+    </div>
+
+    <button onclick="goToNextPage()">Next Surprise 💖</button>
+  </div>
+
+  <div class="page-transition" id="pageTransition">
+    <div class="transition-content">
+      <h2>✨ Loading Our Special Moments ✨</h2>
+      <p>Get ready for something beautiful...</p>
+    </div>
+  </div>
+
+  <div class="page2-container" id="page2">
+    <h1 class="title">Our Special Moments</h1>
+    <p class="subtitle">Celebrating the memories we've created together...</p>
+
+    <div class="gallery">
+      <div class="photo"><img src="images/1.jpg" alt="Moment 1"></div>
+      <div class="photo"><img src="images/2.jpg" alt="Moment 2"></div>
+      <div class="photo"><img src="images/3.jpg" alt="Moment 3"></div>
+      <div class="photo"><img src="images/4.jpg" alt="Moment 4"></div>
+      <div class="photo"><img src="images/5.jpg" alt="Moment 5"></div>
+      <div class="photo"><img src="images/6.jpg" alt="Moment 6"></div>
+      <div class="photo"><img src="images/7.jpg" alt="Moment 7"></div>
+      <div class="photo"><img src="images/8.jpg" alt="Moment 8"></div>
+      <div class="photo"><img src="images/9.jpg" alt="Moment 9"></div>
+      <div class="photo"><img src="images/10.jpg" alt="Moment 10"></div>
+      <div class="photo"><img src="images/11.jpg" alt="Moment 11"></div>
+      <div class="photo"><img src="images/12.jpg" alt="Moment 12"></div>
+    </div>
+
+    <div class="paragraph">
+      <h2>Our Journey Together</h2>
+      <p>
+        Every moment spent with you is a blessing, every smile we share a treasure.
+        You light up my world in ways I never thought possible. These memories we've created together are just the beginning - our adventure continues with each passing day, building a collection of moments that tell our unique story.
+      </p>
+      <p class="love">With love always ❤️</p>
+    </div>
+  </div>
+
+  <script>
+    const startDate = new Date("2024-10-24");
+
+    function animateCounter(element, targetValue, duration = 2000) {
+      let startValue = 0;
+      const increment = targetValue / (duration / 16);
+      
+      function updateCounter() {
+        startValue += increment;
+        if (startValue >= targetValue) {
+          element.innerText = targetValue;
+        } else {
+          element.innerText = Math.floor(startValue);
+          requestAnimationFrame(updateCounter);
+        }
+      }
+      updateCounter();
+    }
+
+    function calculateTimeTogether() {
+      const now = new Date();
+      const timeDifference = now - startDate;
+      
+      // Calculate total months
+      let totalMonths = (now.getFullYear() - startDate.getFullYear()) * 12 + 
+                       (now.getMonth() - startDate.getMonth());
+      
+      // Calculate remaining days
+      let days = now.getDate() - startDate.getDate();
+      if (days < 0) {
+        totalMonths--;
+        const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        days += prevMonth.getDate();
+      }
+      
+      // Calculate hours and minutes
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      
+      // Total days since start
+      const totalDays = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+      
+      // Animate the counters
+      animateCounter(document.getElementById("months"), totalMonths);
+      animateCounter(document.getElementById("days"), totalDays);
+      animateCounter(document.getElementById("hours"), hours);
+      animateCounter(document.getElementById("minutes"), minutes);
+    }
+
+    function goToNextPage() {
+      const page1 = document.getElementById('page1');
+      const page2 = document.getElementById('page2');
+      const transition = document.getElementById('pageTransition');
+      
+      // Start transition
+      page1.classList.add('fade-out');
+      transition.classList.add('active');
+      
+      // Create floating hearts effect
+      createFloatingHearts();
+      
+      setTimeout(() => {
+        page1.style.display = 'none';
+        transition.classList.remove('active');
+        page2.classList.add('active');
+        document.body.style.overflow = 'auto';
+      }, 1500);
+    }
+
+    function createFloatingHearts() {
+      for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+          const heart = document.createElement('div');
+          heart.className = 'heart';
+          heart.innerHTML = '💖';
+          heart.style.left = Math.random() * window.innerWidth + 'px';
+          heart.style.top = window.innerHeight + 'px';
+          document.body.appendChild(heart);
+          
+          setTimeout(() => {
+            heart.remove();
+          }, 3000);
+        }, i * 200);
+      }
+    }
+
+    // Photo click animation
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('photo')) {
+        e.target.classList.add('clicked');
+        setTimeout(() => {
+          e.target.classList.remove('clicked');
+        }, 600);
+      }
+    });
+
+    // Initialize and update timer
+    calculateTimeTogether();
+    
+    // Update time every minute
+    setInterval(calculateTimeTogether, 60000);
+    
+    // Add real-time seconds animation
+    setInterval(() => {
+      const minutesElement = document.getElementById("minutes");
+      if (minutesElement) {
+        minutesElement.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+          minutesElement.style.transform = 'scale(1)';
+        }, 200);
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
